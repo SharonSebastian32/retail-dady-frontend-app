@@ -1,5 +1,14 @@
 import { useState } from "react";
 import axios from "axios";
+import {
+  Box,
+  Button,
+  MenuItem,
+  Select,
+  TextField,
+  FormControl,
+  InputLabel,
+} from "@mui/material";
 
 function Form({ onFormSubmit }) {
   const initialFormData = {
@@ -25,7 +34,7 @@ function Form({ onFormSubmit }) {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "https://retail-daddy-backend.onrender.com/api/v1/invoices/create",
+        "http://localhost:3000/api/v1/invoices/create", // Adjust endpoint accordingly
         formData
       );
       alert(response.data.message);
@@ -37,100 +46,112 @@ function Form({ onFormSubmit }) {
   };
 
   return (
-    <form
+    <Box
+      style={{
+        marginTop: "25px",
+        padding: "40px",
+        boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.1)",
+        gap: "25px",
+      }}
+      component="form"
       onSubmit={handleSubmit}
-      style={{ display: "flex", flexDirection: "column", gap: "6px" }}
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 2,
+        maxWidth: "300px",
+        margin: "0 auto",
+      }}
     >
-      {/* Form fields */}
-      <label htmlFor="itemCode" style={{ textAlign: "left" }}>
-        Item Code
-      </label>
-      <input
-        style={{ padding: "6px 13px", fontSize: "15px" }}
-        type="text"
+      {/* Item Code */}
+      <TextField
+        label="Item Code"
         name="itemCode"
-        id="itemCode"
         value={formData.itemCode}
         onChange={handleChange}
         placeholder="Enter Item Code"
         required
       />
-      <label htmlFor="itemName" style={{ textAlign: "left" }}>
-        Item Name
-      </label>
-      <input
-        style={{ padding: "6px 13px", fontSize: "15px" }}
-        type="text"
+
+      {/* Item Name */}
+      <TextField
+        label="Item Name"
         name="itemName"
-        id="itemName"
         value={formData.itemName}
         onChange={handleChange}
         placeholder="Enter Item Name"
         required
       />
-      <label htmlFor="category" style={{ textAlign: "left" }}>
-        Category
-      </label>
-      <select
-        style={{ padding: "6px 13px", fontSize: "15px" }}
-        name="category"
-        id="category"
-        value={formData.category}
-        onChange={handleChange}
-        placeholder="Select Category"
-        required
-      >
-        <option value="">Select Category</option>
-        <option value="Fruits">Fruits</option>
-        <option value="Vegetables">Vegetables</option>
-        <option value="Stationaries">Stationaries</option>
-      </select>
-      <label htmlFor="quantity" style={{ textAlign: "left" }}>
-        Quantity
-      </label>
-      <input
-        style={{ padding: "6px 13px", fontSize: "15px" }}
-        type="number"
+
+      {/* Category */}
+      <FormControl fullWidth>
+        <InputLabel id="category-label">Category</InputLabel>
+        <Select
+          labelId="category-label"
+          name="category"
+          value={formData.category}
+          onChange={handleChange}
+          required
+        >
+          <MenuItem value="">
+            <em>Select Category</em>
+          </MenuItem>
+          <MenuItem value="Fruits">Fruits</MenuItem>
+          <MenuItem value="Vegetables">Vegetables</MenuItem>
+          <MenuItem value="Stationaries">Stationaries</MenuItem>
+        </Select>
+      </FormControl>
+
+      {/* Quantity */}
+      <TextField
+        label="Quantity"
         name="quantity"
-        id="quantity"
+        type="number"
         value={formData.quantity}
         onChange={handleChange}
         placeholder="Enter Quantity"
         required
       />
-      <label htmlFor="rate" style={{ textAlign: "left" }}>
-        Rate
-      </label>
-      <input
-        style={{ padding: "6px 13px", fontSize: "15px" }}
-        type="number"
+
+      {/* Rate */}
+      <TextField
+        label="Rate"
         name="rate"
-        id="rate"
+        type="number"
         value={formData.rate}
         onChange={handleChange}
         placeholder="Enter Rate"
         required
       />
-      <label htmlFor="location" style={{ textAlign: "left" }}>
-        Location
-      </label>
-      <select
-        style={{ padding: "6px 13px", fontSize: "15px" }}
-        name="location"
-        id="location"
-        value={formData.location}
-        onChange={handleChange}
-        placeholder="Select Location"
-        required
+
+      {/* Location */}
+      <FormControl fullWidth>
+        <InputLabel id="location-label">Location</InputLabel>
+        <Select
+          labelId="location-label"
+          name="location"
+          value={formData.location}
+          onChange={handleChange}
+          required
+        >
+          <MenuItem value="">
+            <em>Select Location</em>
+          </MenuItem>
+          <MenuItem value="Calicut">Calicut</MenuItem>
+          <MenuItem value="Malappuram">Malappuram</MenuItem>
+          <MenuItem value="Thrissur">Thrissur</MenuItem>
+        </Select>
+      </FormControl>
+
+      {/* Submit Button */}
+      <Button
+        type="submit"
+        variant="contained"
+        style={{ backgroundColor: "grey" }}
       >
-        <option value="">Select Location</option>
-        <option value="Calicut">Calicut</option>
-        <option value="Malappuram">Malappuram</option>
-        <option value="Thrissur">Thrissur</option>
-      </select>
-      <br />
-      <button type="submit">Submit</button>
-    </form>
+        Submit
+      </Button>
+    </Box>
   );
 }
 

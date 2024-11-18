@@ -11,13 +11,23 @@ function App() {
   };
 
   return (
-    <>
-      <h1 style={{ backgroundColor: "grey", color: "blue", fontFamily:"serif" }}>Retail Dady</h1>
-      <div style={{ display: "flex", flexDirection: "row", gap: "50px" }}>
+    <div style={{ padding: "0px 25px" }}>
+      <h1
+        style={{
+          backgroundColor: "#f0f0f1",
+          color: "black",
+          fontFamily: "serif",
+          fontSize: "50px",
+          textAlign: "center",
+        }}
+      >
+        Retail Dady
+      </h1>
+      <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
         <InvoiceForm onFormSubmit={triggerRefresh} />
         <Tables refresh={refresh} />
       </div>
-    </>
+    </div>
   );
 }
 
