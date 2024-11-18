@@ -34,7 +34,7 @@ function Form({ onFormSubmit }) {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/v1/invoices/create", // Adjust endpoint accordingly
+        "https://retail-daddy-backend.onrender.com/api/v1/invoices/create", // Adjust endpoint accordingly
         formData
       );
       alert(response.data.message);
@@ -48,18 +48,17 @@ function Form({ onFormSubmit }) {
   return (
     <Box
       style={{
-        marginTop: "25px",
+        marginTop: "9px",
         padding: "40px",
         boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.1)",
-        gap: "25px",
+        gap: "28px",
       }}
       component="form"
       onSubmit={handleSubmit}
       sx={{
         display: "flex",
         flexDirection: "column",
-        gap: 2,
-        maxWidth: "300px",
+         maxWidth: "300px",
         margin: "0 auto",
       }}
     >

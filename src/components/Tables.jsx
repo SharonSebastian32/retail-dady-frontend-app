@@ -24,7 +24,9 @@ function Tables({ refresh }) {
     const fetchInvoices = async () => {
       try {
         const response = await fetch(
-          "http://localhost:3000/api/v1/invoices/getall/", // Replace with production URL as needed
+          "https://retail-daddy-backend.onrender.com/api/v1/invoices/getall/",
+
+          // Replace with production URL as needed
           {
             method: "GET",
             headers: {
@@ -86,87 +88,155 @@ function Tables({ refresh }) {
 
   // Render
   return (
-    <Paper elevation={1} sx={{ padding: 2 }}>
-      <TableContainer>
-        <Table>
-          <TableHead>
-            <TableRow>
-              {[
-                "Item Code",
-                "Item Name",
-                "Category",
-                "Quantity",
-                "Rate",
-                "Price",
-                "Discount",
-                "Amount",
-                "Location",
-                "Actions",
-              ].map((header) => (
-                <TableCell key={header} style={{ fontWeight: "bold" }}>
-                  {header}
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-
-          <TableBody>
-            {currentRows.map((row, rowIndex) => {
-              const discount = getDiscount(row.category);
-              const price = row.quantity * (row.rate || 0);
-              const amountPay = (price - (price * discount) / 100).toFixed(2);
-
-              return (
-                <TableRow
-                  key={rowIndex}
-                  style={{
-                    backgroundColor: rowIndex % 2 === 0 ? "#f0f0f0" : "#ffffff",
-                    padding: "2px", // Gray for even rows, white for odd rows
-                  }}
-                >
-                  <TableCell>{row.itemCode}</TableCell>
-                  <TableCell>{row.itemName}</TableCell>
-                  <TableCell>{row.category}</TableCell>
-                  <TableCell>{row.quantity}</TableCell>
-                  <TableCell>{row.rate?.toFixed(2) || "-"}</TableCell>
-                  <TableCell>{price.toFixed(2) || "-"}</TableCell>
-                  <TableCell>{`${discount}%`}</TableCell>
-                  <TableCell>{amountPay}</TableCell>
-                  <TableCell>{row.location || "-"}</TableCell>
-                  <TableCell>
-                    <IconButton
-                      onClick={findDocumentAndDelete}
-                      aria-label="delete"
-                    >
-                      <MdDeleteOutline color="red" />
-                    </IconButton>
-                    <IconButton
-                      onClick={findDocumentAndUpdate}
-                      aria-label="edit"
-                    >
-                      <CiEdit color="blue" />
-                    </IconButton>
-                    <IconButton
-                      onClick={findDocumentAndUpdate}
-                      aria-label="view"
-                    >
-                      <RxEyeOpen color="black" />
-                    </IconButton>
+    <>
+      <Paper elevation={1} sx={{ padding: 2 }}>
+        <p>VEG - Vegetables FRT - Fruits STN - Stationaries</p>
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow>
+                {[
+                  "Item Code",
+                  "Item Name",
+                  "Category",
+                  "Quantity",
+                  "Rate",
+                  "Price",
+                  "Discount",
+                  "Amount",
+                  "Location",
+                  "Actions",
+                ].map((header) => (
+                  <TableCell key={header} style={{ fontWeight: "bold" }}>
+                    {header}
                   </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      {/* Pagination */}
-      <Pagination
-        count={totalPages}
-        page={currentPage}
-        onChange={(event, page) => setCurrentPage(page)}
-        sx={{ marginTop: 2, display: "flex", justifyContent: "center" }}
-      />
-    </Paper>
+                ))}
+              </TableRow>
+            </TableHead>
+
+            {/* <TableBody>
+              {currentRows.map((row, rowIndex) => {
+                const discount = getDiscount(row.category);
+                const price = row.quantity * (row.rate || 0);
+                const amountPay = (price - (price * discount) / 100).toFixed(2);
+
+                return (
+                  <TableRow
+                    key={rowIndex}
+                    style={{
+                      backgroundColor:
+                        rowIndex % 2 === 0 ? "#f0f0f0" : "#ffffff",
+                      padding: "2px", // Gray for even rows, white for odd rows
+                    }}
+                  >
+                    <TableCell>{row.itemCode}</TableCell>
+                    <TableCell>{row.itemName}</TableCell>
+                    <TableCell>{row.category}</TableCell>
+                    <TableCell>{row.quantity}</TableCell>
+                    <TableCell>{row.rate?.toFixed(2) || "-"}</TableCell>
+                    <TableCell>{price.toFixed(2) || "-"}</TableCell>
+                    <TableCell>{`${discount}%`}</TableCell>
+                    <TableCell>{amountPay}</TableCell>
+                    <TableCell>{row.location || "-"}</TableCell>
+                    <TableCell>
+                      <IconButton
+                        onClick={findDocumentAndDelete}
+                        aria-label="delete"
+                      >
+                        <MdDeleteOutline color="red" />
+                      </IconButton>
+                      <IconButton
+                        onClick={findDocumentAndUpdate}
+                        aria-label="edit"
+                      >
+                        <CiEdit color="blue" />
+                      </IconButton>
+                      <IconButton
+                        onClick={findDocumentAndUpdate}
+                        aria-label="view"
+                      >
+                        <RxEyeOpen color="black" />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody> */}
+            <TableBody>
+              {currentRows.map((row, rowIndex) => {
+                const discount = getDiscount(row.category);
+                const price = row.quantity * (row.rate || 0);
+                const amountPay = (price - (price * discount) / 100).toFixed(2);
+
+                // Map category to abbreviations
+                const getCategoryAbbreviation = (category) => {
+                  switch (category) {
+                    case "Vegetables":
+                      return "VEG";
+                    case "Stationaries":
+                      return "STR";
+                    case "Fruits":
+                      return "FRT";
+                    default:
+                      return category; // Default to the original name if no match
+                  }
+                };
+
+                return (
+                  <TableRow
+                    key={rowIndex}
+                    style={{
+                      backgroundColor:
+                        rowIndex % 2 === 0 ? "#f0f0f0" : "#ffffff",
+                      padding: "2px",
+                    }}
+                  >
+                    <TableCell>{row.itemCode}</TableCell>
+                    <TableCell>{row.itemName}</TableCell>
+                    <TableCell>
+                      {getCategoryAbbreviation(row.category)}
+                    </TableCell>
+                    <TableCell>{row.quantity}</TableCell>
+                    <TableCell>{row.rate?.toFixed(2) || "-"}</TableCell>
+                    <TableCell>{price.toFixed(2) || "-"}</TableCell>
+                    <TableCell>{`${discount}%`}</TableCell>
+                    <TableCell>{amountPay}</TableCell>
+                    <TableCell>{row.location || "-"}</TableCell>
+                    <TableCell>
+                      <IconButton
+                        onClick={findDocumentAndDelete}
+                        aria-label="delete"
+                      >
+                        <MdDeleteOutline color="red" />
+                      </IconButton>
+                      <IconButton
+                        onClick={findDocumentAndUpdate}
+                        aria-label="edit"
+                      >
+                        <CiEdit color="blue" />
+                      </IconButton>
+                      <IconButton
+                        onClick={findDocumentAndUpdate}
+                        aria-label="view"
+                      >
+                        <RxEyeOpen color="black" />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        {/* Pagination */}
+        <Pagination
+          count={totalPages}
+          page={currentPage}
+          onChange={(event, page) => setCurrentPage(page)}
+          sx={{ marginTop: 2, display: "flex", justifyContent: "center" }}
+        />
+      </Paper>
+    </>
   );
 }
 
