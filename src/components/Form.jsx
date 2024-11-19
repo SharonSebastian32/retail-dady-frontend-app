@@ -51,7 +51,7 @@ function Form({ onFormSubmit }) {
         toast.current.show({
           severity: "success",
           summary: "Success",
-          detail: data.message || "Form submitted successfully!",
+          detail: "Stock added successfully!",
           life: 3000,
         });
         setFormData({
@@ -63,7 +63,6 @@ function Form({ onFormSubmit }) {
           location: "",
         });
         onFormSubmit();
-        // Focus on itemCode input after successful submission
         itemCodeRef.current?.focus();
       } else {
         toast.current.show({
@@ -77,7 +76,7 @@ function Form({ onFormSubmit }) {
       toast.current.show({
         severity: "error",
         summary: "Error",
-        detail: "Failed to submit form. Please try again.",
+        detail: "Failed to add stock. Please try again.",
         life: 3000,
       });
       console.error(error);
@@ -124,7 +123,7 @@ function Form({ onFormSubmit }) {
       <ConfirmDialog
         visible={visible}
         onHide={() => setVisible(false)}
-        message="Are you sure you want to submit this form?"
+        message="Are you sure you want to add this item to Stock?"
         header="Confirmation"
         icon="pi pi-exclamation-triangle"
         accept={accept}

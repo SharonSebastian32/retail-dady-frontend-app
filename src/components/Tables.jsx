@@ -82,8 +82,8 @@ function Tables({ refresh }) {
     <>
       <Paper elevation={1} sx={{ padding: 2 }}>
         <p>
-          <span>VEG - Vegetables  </span>
-          <span>FRT - Fruits  </span>
+          <span>VEG - Vegetables </span>
+          <span>FRT - Fruits </span>
           <span>SRT - Stationaries</span>
         </p>
         <TableContainer>
@@ -148,6 +148,13 @@ function Tables({ refresh }) {
                     <TableCell>{amountPay}</TableCell>
                     <TableCell>{row.location || "-"}</TableCell>
                     <TableCell>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "row",
+                          gap: "5px",
+                        }}
+                      ></div>
                       <IconButton
                         onClick={findDocumentAndDelete}
                         aria-label="delete"
