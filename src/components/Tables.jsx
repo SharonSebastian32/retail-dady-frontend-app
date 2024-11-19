@@ -82,8 +82,8 @@ function Tables({ refresh }) {
     <>
       <Paper elevation={1} sx={{ padding: 2 }}>
         <p>
-          <span>VEG - Vegetables</span>
-          <span>FRT - Fruits</span>
+          <span>VEG - Vegetables  </span>
+          <span>FRT - Fruits  </span>
           <span>SRT - Stationaries</span>
         </p>
         <TableContainer>
