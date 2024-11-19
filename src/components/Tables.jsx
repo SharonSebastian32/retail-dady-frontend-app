@@ -22,9 +22,9 @@ function Tables({ refresh }) {
     const fetchInvoices = async () => {
       try {
         const response = await fetch(
-          "https://retail-daddy-backend.onrender.com/api/v1/invoices/getall/",
+          // "https://retail-daddy-backend.onrender.com/api/v1/invoices/getall/", // pro api
+          "http://localhost:3000/api/v1/invoices/getall", //dev api
 
-          // Replace with production URL as needed
           {
             method: "GET",
             headers: {

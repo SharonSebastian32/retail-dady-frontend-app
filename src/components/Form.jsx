@@ -35,7 +35,8 @@ function Form({ onFormSubmit }) {
   const handleFormSubmit = async () => {
     try {
       const response = await fetch(
-        "https://retail-daddy-backend.onrender.com/api/v1/invoices/create",
+        // "https://retail-daddy-backend.onrender.com/api/v1/invoices/create", production api
+        "http://localhost:3000/api/v1/invoices/create", //development api
         {
           method: "POST",
           headers: {
