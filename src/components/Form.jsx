@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useState, useRef } from "react";
 import { Toast } from "primereact/toast";
 import { ConfirmDialog } from "primereact/confirmdialog";
 import {
@@ -10,30 +10,29 @@ import {
   FormControl,
   InputLabel,
 } from "@mui/material";
-import { Formik, Form, Field, ErrorMessage } from "formik";
-import * as Yup from "yup";
 
-function FormikForm({ onFormSubmit }) {
+function Form({ onFormSubmit }) {
   const toast = useRef(null);
-  const itemCodeRef = useRef(null);
+  const itemCodeRef = useRef(null); // Add ref for itemCode input
   const [visible, setVisible] = useState(false);
-  const [tempValues, setTempValues] = useState(null);
-
-  // Validation schema using Yup
-  const validationSchema = Yup.object({
-    itemCode: Yup.string().required("Item Code is required"),
-    itemName: Yup.string().required("Item Name is required"),
-    category: Yup.string().required("Category is required"),
-    quantity: Yup.number()
-      .required("Quantity is required")
-      .positive("Quantity must be positive"),
-    rate: Yup.number()
-      .required("Rate is required")
-      .positive("Rate must be positive"),
-    location: Yup.string().required("Location is required"),
+  const [formData, setFormData] = useState({
+    itemCode: "",
+    itemName: "",
+    category: "",
+    quantity: "",
+    rate: "",
+    location: "",
   });
 
-  const handleFormSubmit = async (values, resetForm) => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const handleFormSubmit = async () => {
     try {
       const response = await fetch(
         "https://retail-daddy-backend.onrender.com/api/v1/invoices/create",
@@ -42,7 +41,7 @@ function FormikForm({ onFormSubmit }) {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(values),
+          body: JSON.stringify(formData),
         }
       );
 
@@ -55,8 +54,16 @@ function FormikForm({ onFormSubmit }) {
           detail: data.message || "Form submitted successfully!",
           life: 3000,
         });
-        resetForm();
+        setFormData({
+          itemCode: "",
+          itemName: "",
+          category: "",
+          quantity: "",
+          rate: "",
+          location: "",
+        });
         onFormSubmit();
+        // Focus on itemCode input after successful submission
         itemCodeRef.current?.focus();
       } else {
         toast.current.show({
@@ -77,15 +84,13 @@ function FormikForm({ onFormSubmit }) {
     }
   };
 
-  const handleConfirm = (values, resetForm) => {
-    setTempValues({ values, resetForm });
+  const handleSubmit = (e) => {
+    e.preventDefault();
     setVisible(true);
   };
 
   const accept = () => {
-    if (tempValues) {
-      handleFormSubmit(tempValues.values, tempValues.resetForm);
-    }
+    handleFormSubmit();
     setVisible(false);
   };
 
@@ -102,10 +107,12 @@ function FormikForm({ onFormSubmit }) {
     <Box
       style={{
         marginTop: "9px",
-        padding: "10px",
+        padding: "40px",
         boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.1)",
-        gap: "27px",
+        gap: "28px",
       }}
+      component="form"
+      onSubmit={handleSubmit}
       sx={{
         display: "flex",
         flexDirection: "column",
@@ -117,132 +124,104 @@ function FormikForm({ onFormSubmit }) {
       <ConfirmDialog
         visible={visible}
         onHide={() => setVisible(false)}
-        message="Are you sure you want to submit the form?"
+        message="Are you sure you want to submit this form?"
         header="Confirmation"
         icon="pi pi-exclamation-triangle"
         accept={accept}
         reject={reject}
       />
 
-      <Formik
-        initialValues={{
-          itemCode: "",
-          itemName: "",
-          category: "",
-          quantity: "",
-          rate: "",
-          location: "",
-        }}
-        validationSchema={validationSchema}
-        onSubmit={(values, { resetForm }) => handleConfirm(values, resetForm)}
+      {/* Item Code */}
+      <TextField
+        inputRef={itemCodeRef} // Add ref to itemCode TextField
+        label="Item Code"
+        name="itemCode"
+        value={formData.itemCode}
+        onChange={handleChange}
+        placeholder="Enter Item Code"
+        required
+      />
+
+      {/* Item Name */}
+      <TextField
+        label="Item Name"
+        name="itemName"
+        value={formData.itemName}
+        onChange={handleChange}
+        placeholder="Enter Item Name"
+        required
+      />
+
+      {/* Category */}
+      <FormControl fullWidth>
+        <InputLabel id="category-label">Category</InputLabel>
+        <Select
+          labelId="category-label"
+          name="category"
+          value={formData.category}
+          onChange={handleChange}
+          required
+        >
+          <MenuItem value="">
+            <em>Select Category</em>
+          </MenuItem>
+          <MenuItem value="Fruits">Fruits</MenuItem>
+          <MenuItem value="Vegetables">Vegetables</MenuItem>
+          <MenuItem value="Stationaries">Stationaries</MenuItem>
+        </Select>
+      </FormControl>
+
+      {/* Quantity */}
+      <TextField
+        label="Quantity"
+        name="quantity"
+        type="number"
+        value={formData.quantity}
+        onChange={handleChange}
+        placeholder="Enter Quantity"
+        required
+      />
+
+      {/* Rate */}
+      <TextField
+        label="Rate"
+        name="rate"
+        type="number"
+        value={formData.rate}
+        onChange={handleChange}
+        placeholder="Enter Rate"
+        required
+      />
+
+      {/* Location */}
+      <FormControl fullWidth>
+        <InputLabel id="location-label">Location</InputLabel>
+        <Select
+          labelId="location-label"
+          name="location"
+          value={formData.location}
+          onChange={handleChange}
+          required
+        >
+          <MenuItem value="">
+            <em>Select Location</em>
+          </MenuItem>
+          <MenuItem value="Calicut">Calicut</MenuItem>
+          <MenuItem value="Malappuram">Malappuram</MenuItem>
+          <MenuItem value="Thrissur">Thrissur</MenuItem>
+        </Select>
+      </FormControl>
+
+      {/* Submit Button */}
+      <Button
+        type="submit"
+        variant="contained"
+        style={{ backgroundColor: "grey" }}
       >
-        {({ values, handleChange }) => (
-          <Form>
-            <TextField
-              inputRef={itemCodeRef}
-              label="Item Code"
-              name="itemCode"
-              value={values.itemCode}
-              onChange={handleChange}
-              margin="normal"
-              fullWidth
-            />
-            <ErrorMessage
-              name="itemCode"
-              component="div"
-              style={{ color: "red" }}
-            />
-
-            <TextField
-              label="Item Name"
-              name="itemName"
-              value={values.itemName}
-              onChange={handleChange}
-              margin="normal"
-              fullWidth
-            />
-            <ErrorMessage
-              name="itemName"
-              component="div"
-              style={{ color: "red" }}
-            />
-
-            <FormControl margin="normal" fullWidth>
-              <InputLabel>Category</InputLabel>
-              <Select
-                name="category"
-                value={values.category}
-                onChange={handleChange}
-              >
-                <MenuItem value="Electronics">Electronics</MenuItem>
-                <MenuItem value="Clothing">Clothing</MenuItem>
-                <MenuItem value="Grocery">Grocery</MenuItem>
-              </Select>
-            </FormControl>
-            <ErrorMessage
-              name="category"
-              component="div"
-              style={{ color: "red" }}
-            />
-
-            <TextField
-              label="Quantity"
-              name="quantity"
-              value={values.quantity}
-              onChange={handleChange}
-              type="number"
-              margin="normal"
-              fullWidth
-            />
-            <ErrorMessage
-              name="quantity"
-              component="div"
-              style={{ color: "red" }}
-            />
-
-            <TextField
-              label="Rate"
-              name="rate"
-              value={values.rate}
-              onChange={handleChange}
-              type="number"
-              margin="normal"
-              fullWidth
-            />
-            <ErrorMessage
-              name="rate"
-              component="div"
-              style={{ color: "red" }}
-            />
-
-            <TextField
-              label="Location"
-              name="location"
-              value={values.location}
-              onChange={handleChange}
-              margin="normal"
-              fullWidth
-            />
-            <ErrorMessage
-              name="location"
-              component="div"
-              style={{ color: "red" }}
-            />
-
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              style={{ marginTop: "20px" }}
-              fullWidth
-            >
-              Submit
-            </Button>
-          </Form>
-        )}
-      </Formik>
+        Submit
+      </Button>
     </Box>
   );
 }
 
-export default FormikForm;
+export default Form;
