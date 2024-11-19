@@ -88,12 +88,7 @@ function Form({ onFormSubmit }) {
 
   const accept = () => {
     handleFormSubmit();
-    toast.current.show({
-      severity: "info",
-      summary: "Confirmed",
-      detail: "Processing your submission...",
-      life: 3000,
-    });
+    setVisible(false);
   };
 
   const reject = () => {
