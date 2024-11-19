@@ -13,12 +13,10 @@ import {
 import { MdDeleteOutline } from "react-icons/md";
 import { CiEdit } from "react-icons/ci";
 import { RxEyeOpen } from "react-icons/rx";
-
 function Tables({ refresh }) {
   const [data, setData] = useState([]); // State to hold the fetched data
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 6;
-
   // Fetch API
   useEffect(() => {
     const fetchInvoices = async () => {
@@ -49,7 +47,6 @@ function Tables({ refresh }) {
     fetchInvoices();
   }, [refresh]);
 
-  // Handlers
   const findDocumentAndDelete = () => {
     if (
       window.confirm(
@@ -59,14 +56,11 @@ function Tables({ refresh }) {
       console.log("Invoice deleted!");
     }
   };
-
   const findDocumentAndUpdate = () => {
     if (window.confirm("Are you sure you want to update this invoice?")) {
       console.log("Invoice updated!");
     }
   };
-
-  // Utility function for category discount
   const getDiscount = (category) => {
     switch (category) {
       case "Vegetables":
@@ -79,18 +73,19 @@ function Tables({ refresh }) {
         return 0;
     }
   };
-
-  // Pagination logic
   const indexOfLastRow = currentPage * rowsPerPage;
   const indexOfFirstRow = indexOfLastRow - rowsPerPage;
   const currentRows = data.slice(indexOfFirstRow, indexOfLastRow);
   const totalPages = Math.ceil(data.length / rowsPerPage);
 
-  // Render
   return (
     <>
       <Paper elevation={1} sx={{ padding: 2 }}>
-        <p>VEG - Vegetables FRT - Fruits STN - Stationaries</p>
+        <p>
+          <span>VEG - Vegetables</span>
+          <span>FRT - Fruits</span>
+          <span>SRT - Stationaries</span>
+        </p>
         <TableContainer>
           <Table>
             <TableHead>
@@ -113,61 +108,11 @@ function Tables({ refresh }) {
                 ))}
               </TableRow>
             </TableHead>
-
-            {/* <TableBody>
-              {currentRows.map((row, rowIndex) => {
-                const discount = getDiscount(row.category);
-                const price = row.quantity * (row.rate || 0);
-                const amountPay = (price - (price * discount) / 100).toFixed(2);
-
-                return (
-                  <TableRow
-                    key={rowIndex}
-                    style={{
-                      backgroundColor:
-                        rowIndex % 2 === 0 ? "#f0f0f0" : "#ffffff",
-                      padding: "2px", // Gray for even rows, white for odd rows
-                    }}
-                  >
-                    <TableCell>{row.itemCode}</TableCell>
-                    <TableCell>{row.itemName}</TableCell>
-                    <TableCell>{row.category}</TableCell>
-                    <TableCell>{row.quantity}</TableCell>
-                    <TableCell>{row.rate?.toFixed(2) || "-"}</TableCell>
-                    <TableCell>{price.toFixed(2) || "-"}</TableCell>
-                    <TableCell>{`${discount}%`}</TableCell>
-                    <TableCell>{amountPay}</TableCell>
-                    <TableCell>{row.location || "-"}</TableCell>
-                    <TableCell>
-                      <IconButton
-                        onClick={findDocumentAndDelete}
-                        aria-label="delete"
-                      >
-                        <MdDeleteOutline color="red" />
-                      </IconButton>
-                      <IconButton
-                        onClick={findDocumentAndUpdate}
-                        aria-label="edit"
-                      >
-                        <CiEdit color="blue" />
-                      </IconButton>
-                      <IconButton
-                        onClick={findDocumentAndUpdate}
-                        aria-label="view"
-                      >
-                        <RxEyeOpen color="black" />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody> */}
             <TableBody>
               {currentRows.map((row, rowIndex) => {
                 const discount = getDiscount(row.category);
                 const price = row.quantity * (row.rate || 0);
                 const amountPay = (price - (price * discount) / 100).toFixed(2);
-
                 // Map category to abbreviations
                 const getCategoryAbbreviation = (category) => {
                   switch (category) {
@@ -213,7 +158,7 @@ function Tables({ refresh }) {
                         onClick={findDocumentAndUpdate}
                         aria-label="edit"
                       >
-                        <CiEdit color="blue" />
+                        <CiEdit color="green" />
                       </IconButton>
                       <IconButton
                         onClick={findDocumentAndUpdate}

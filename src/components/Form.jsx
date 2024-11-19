@@ -1,5 +1,6 @@
-import { useState } from "react";
-import axios from "axios";
+import { useState, useRef } from "react";
+import { Toast } from "primereact/toast";
+import { ConfirmDialog } from "primereact/confirmdialog";
 import {
   Box,
   Button,
@@ -11,16 +12,16 @@ import {
 } from "@mui/material";
 
 function Form({ onFormSubmit }) {
-  const initialFormData = {
+  const toast = useRef(null);
+  const [visible, setVisible] = useState(false);
+  const [formData, setFormData] = useState({
     itemCode: "",
     itemName: "",
     category: "",
     quantity: "",
     rate: "",
     location: "",
-  };
-
-  const [formData, setFormData] = useState(initialFormData);
+  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -30,19 +31,78 @@ function Form({ onFormSubmit }) {
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleFormSubmit = async () => {
     try {
-      const response = await axios.post(
-        "https://retail-daddy-backend.onrender.com/api/v1/invoices/create", // Adjust endpoint accordingly
-        formData
+      const response = await fetch(
+        "https://retail-daddy-backend.onrender.com/api/v1/invoices/create",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        }
       );
-      alert(response.data.message);
-      setFormData(initialFormData); // Reset the form
-      onFormSubmit(); // Notify parent to refresh the table
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.current.show({
+          severity: "success",
+          summary: "Success",
+          detail: data.message || "Form submitted successfully!",
+          life: 3000,
+        });
+        setFormData({
+          itemCode: "",
+          itemName: "",
+          category: "",
+          quantity: "",
+          rate: "",
+          location: "",
+        });
+        onFormSubmit();
+      } else {
+        toast.current.show({
+          severity: "error",
+          summary: "Error",
+          detail: data.message || "Something went wrong!",
+          life: 3000,
+        });
+      }
     } catch (error) {
+      toast.current.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Failed to submit form. Please try again.",
+        life: 3000,
+      });
       console.error(error);
     }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setVisible(true);
+  };
+
+  const accept = () => {
+    handleFormSubmit();
+    toast.current.show({
+      severity: "info",
+      summary: "Confirmed",
+      detail: "Processing your submission...",
+      life: 3000,
+    });
+  };
+
+  const reject = () => {
+    toast.current.show({
+      severity: "warn",
+      summary: "Cancelled",
+      detail: "You have cancelled the submission",
+      life: 3000,
+    });
   };
 
   return (
@@ -58,10 +118,21 @@ function Form({ onFormSubmit }) {
       sx={{
         display: "flex",
         flexDirection: "column",
-         maxWidth: "300px",
+        maxWidth: "300px",
         margin: "0 auto",
       }}
     >
+      <Toast ref={toast} />
+      <ConfirmDialog
+        visible={visible}
+        onHide={() => setVisible(false)}
+        message="Are you sure you want to submit this form?"
+        header="Confirmation"
+        icon="pi pi-exclamation-triangle"
+        accept={accept}
+        reject={reject}
+      />
+
       {/* Item Code */}
       <TextField
         label="Item Code"
