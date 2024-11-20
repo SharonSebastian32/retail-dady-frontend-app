@@ -17,13 +17,23 @@ import { MdDeleteOutline } from "react-icons/md";
 import { CiEdit } from "react-icons/ci";
 import { RxEyeOpen } from "react-icons/rx";
 import FormDialog from "./Childrens/FormDialogue";
+import ViewDialog from "./Childrens/ViewDetails.jsx"; // Import ViewDialog
 
 function Tables({ refresh }) {
   const [data, setData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 6;
   const toast = useRef(null);
-  const [selectedRow, setSelectedRow] = useState(null);
+  const [selectedRow, setSelectedRow] = useState(null); // For FormDialog and ViewDialog
+  const [viewMode, setViewMode] = useState(false); // Track if the view dialog is open
+  const showToast = (severity, summary, detail) => {
+    toast.current.show({
+      severity: severity,
+      summary: summary,
+      detail: detail,
+      life: 3000,
+    });
+  };
 
   useEffect(() => {
     fetchInvoices();
@@ -52,23 +62,15 @@ function Tables({ refresh }) {
       showToast(
         "error",
         "Error",
-        "Failed to fetch invoices. Please try again later."
+        "Failed to fetch Stock. Please try again later."
       );
     }
   };
 
-  const showToast = (severity, summary, detail) => {
-    toast.current.show({
-      severity: severity,
-      summary: summary,
-      detail: detail,
-      life: 3000,
-    });
-  };
   const confirmDelete = (id) => {
     confirmDialog({
       message: "Are you sure you want to delete Stock?",
-      header: "Delete Confirmation",
+      header: "Delete",
       icon: "pi pi-exclamation-triangle",
       acceptClassName: "p-button-danger",
       accept: () => handleDelete(id),
@@ -76,6 +78,7 @@ function Tables({ refresh }) {
         showToast("info", "Cancelled", "Delete operation cancelled"),
     });
   };
+
   const handleDelete = async (id) => {
     if (!id) {
       showToast("error", "Error", "No Stock ID provided for deletion");
@@ -99,11 +102,12 @@ function Tables({ refresh }) {
 
   const findDocumentAndUpdate = (row) => {
     setSelectedRow(row);
+    setViewMode(false); // Set to false when editing, as it should show the form dialog
   };
 
-  const viewDocument = (id) => {
-    console.log("Viewing document:", id);
-    showToast("info", "Info", "Viewing Stock details");
+  const viewDocument = (row) => {
+    setSelectedRow(row);
+    setViewMode(true); // Set to true when viewing, to show the view dialog
   };
 
   const getDiscount = (category) => {
@@ -118,6 +122,7 @@ function Tables({ refresh }) {
         return 0;
     }
   };
+
   const getCategoryAbbreviation = (category) => {
     switch (category) {
       case "Vegetables":
@@ -208,14 +213,14 @@ function Tables({ refresh }) {
                         <MdDeleteOutline color="red" />
                       </IconButton>
                       <IconButton
-                        onClick={() => findDocumentAndUpdate(row)}
+                        onClick={() => findDocumentAndUpdate(row)} // Open FormDialog for edit
                         aria-label="edit"
                         className="hover:bg-green-100"
                       >
                         <CiEdit color="green" />
                       </IconButton>
                       <IconButton
-                        onClick={() => viewDocument(row._id)}
+                        onClick={() => viewDocument(row)} // Open ViewDialog for viewing
                         aria-label="view"
                         className="hover:bg-gray-100"
                       >
@@ -235,12 +240,20 @@ function Tables({ refresh }) {
         onChange={(event, page) => setCurrentPage(page)}
         sx={{ marginTop: 2, display: "flex", justifyContent: "center" }}
       />
-      {selectedRow && (
+      {/* Show FormDialog if editing, and ViewDialog if viewing */}
+      {selectedRow && !viewMode && (
         <FormDialog
-          open={!!selectedRow}
-          handleClose={() => setSelectedRow(null)}
-          rowData={selectedRow}
+          open={!!selectedRow} // Open FormDialog if row is selected
+          handleClose={() => setSelectedRow(null)} // Close FormDialog
+          rowData={selectedRow} // Pass rowData for editing
           handleSubmit={handleEdit}
+        />
+      )}
+      {selectedRow && viewMode && (
+        <ViewDialog
+          open={!!selectedRow} // Open ViewDialog if row is selected
+          handleClose={() => setSelectedRow(null)} // Close ViewDialog
+          rowData={selectedRow} // Pass rowData for viewing
         />
       )}
     </Paper>

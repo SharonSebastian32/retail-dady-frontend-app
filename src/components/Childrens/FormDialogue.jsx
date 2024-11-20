@@ -64,10 +64,9 @@ export default function FormDialog({
 
       if (response.status === 200) {
         if (handleSubmit) {
-          await handleSubmit(updatedData); // Wait for parent component to update
+          await handleSubmit(updatedData);
         }
 
-        // Close dialog after successful update
         if (handleClose) {
           handleClose();
         }
@@ -75,8 +74,8 @@ export default function FormDialog({
     } catch (error) {
       console.error("Error updating invoice:", error);
       toast.current?.show({
-        severity: "error",
-        summary: "Error",
+        severity: "warn",
+        summary: "Warning",
         detail:
           error.response?.data?.message ||
           "Error updating item. Please try again.",
@@ -86,7 +85,6 @@ export default function FormDialog({
   };
 
   const handleCancel = () => {
-    showToast("info", "Cancelled", "Update cancelled");
     handleClose();
   };
 
