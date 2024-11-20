@@ -1,4 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import axios from "axios";
+import { Toast } from "primereact/toast";
+import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import {
   Table,
   TableBody,
@@ -13,54 +16,111 @@ import {
 import { MdDeleteOutline } from "react-icons/md";
 import { CiEdit } from "react-icons/ci";
 import { RxEyeOpen } from "react-icons/rx";
+
 function Tables({ refresh }) {
-  const [data, setData] = useState([]); // State to hold the fetched data
+  const [data, setData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 6;
-  // Fetch API
+  const toast = useRef(null);
+
   useEffect(() => {
-    const fetchInvoices = async () => {
-      try {
-        const response = await fetch(
-          // "https://retail-daddy-backend.onrender.com/api/v1/invoices/getall/", // pro api
-          "http://localhost:3000/api/v1/invoices/getall", //dev api
-
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const result = await response.json();
-        setData(result.data.reverse()); // Update state with fetched data
-      } catch (error) {
-        console.error("Error fetching invoices:", error);
-      }
-    };
-
     fetchInvoices();
   }, [refresh]);
 
-  const findDocumentAndDelete = () => {
-    if (
-      window.confirm(
-        "Are you sure you want to delete this invoice? It will be deleted permanently."
-      )
-    ) {
-      console.log("Invoice deleted!");
+  const fetchInvoices = async () => {
+    try {
+      const response = await fetch(
+        "http://localhost:3000/api/v1/invoices/getall",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      setData(result.data.reverse());
+    } catch (error) {
+      console.error("Error fetching invoices:", error);
+      showToast(
+        "error",
+        "Error",
+        "Failed to fetch invoices. Please try again later."
+      );
     }
   };
-  const findDocumentAndUpdate = () => {
-    if (window.confirm("Are you sure you want to update this invoice?")) {
-      console.log("Invoice updated!");
+
+  const showToast = (severity, summary, detail) => {
+    toast.current.show({
+      severity: severity,
+      summary: summary,
+      detail: detail,
+      life: 3000,
+    });
+  };
+
+  const confirmDelete = (id) => {
+    confirmDialog({
+      message: "Are you sure you want to delete this  stock?",
+      header: "Delete Confirmation",
+      icon: "pi pi-exclamation-triangle",
+      acceptClassName: "p-button-danger",
+      accept: () => handleDelete(id),
+      reject: () =>
+        showToast("info", "Cancelled", "Delete operation cancelled"),
+    });
+  };
+
+  const handleDelete = async (id) => {
+    if (!id) {
+      showToast("error", "Error", "No Stock ID provided for deletion");
+      return;
+    }
+
+    try {
+      const response = await axios.delete(
+        `http://localhost:3000/api/v1/invoices/delete/${id}`
+      );
+
+      if (response.status === 200) {
+        setData((prevData) => prevData.filter((item) => item._id !== id));
+        showToast("success", "Success", "Item deleted successfully!");
+      }
+    } catch (error) {
+      console.error("Error deleting invoice:", error);
+      showToast(
+        "error",
+        "Error",
+        error.response?.data?.message || "Failed to delete invoice."
+      );
     }
   };
+
+  const findDocumentAndUpdate = (id) => {
+    confirmDialog({
+      message: "Are you sure you want to update this invoice?",
+      header: "Update Confirmation",
+      icon: "pi pi-exclamation-circle",
+      accept: () => {
+        console.log("Invoice updated!", id);
+        showToast("success", "Success", "Invoice updated successfully!");
+      },
+      reject: () =>
+        showToast("info", "Cancelled", "Update operation cancelled"),
+    });
+  };
+
+  const viewDocument = (id) => {
+    // Add your view logic here
+    console.log("Viewing document:", id);
+    showToast("info", "Info", "Viewing invoice details");
+  };
+
   const getDiscount = (category) => {
     switch (category) {
       case "Vegetables":
@@ -73,122 +133,120 @@ function Tables({ refresh }) {
         return 0;
     }
   };
+
+  const getCategoryAbbreviation = (category) => {
+    switch (category) {
+      case "Vegetables":
+        return "VEG";
+      case "Stationaries":
+        return "STR";
+      case "Fruits":
+        return "FRT";
+      default:
+        return category;
+    }
+  };
+
   const indexOfLastRow = currentPage * rowsPerPage;
   const indexOfFirstRow = indexOfLastRow - rowsPerPage;
   const currentRows = data.slice(indexOfFirstRow, indexOfLastRow);
   const totalPages = Math.ceil(data.length / rowsPerPage);
 
   return (
-    <>
-      <Paper elevation={1} sx={{ padding: 2 }}>
-        <p>
-          <span>VEG - Vegetables </span>
-          <span>FRT - Fruits </span>
-          <span>SRT - Stationaries</span>
-        </p>
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                {[
-                  "Item Code",
-                  "Item Name",
-                  "Category",
-                  "Quantity",
-                  "Rate",
-                  "Price",
-                  "Discount",
-                  "Amount",
-                  "Location",
-                  "Actions",
-                ].map((header) => (
-                  <TableCell key={header} style={{ fontWeight: "bold" }}>
-                    {header}
-                  </TableCell>
-                ))}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {currentRows.map((row, rowIndex) => {
-                const discount = getDiscount(row.category);
-                const price = row.quantity * (row.rate || 0);
-                const amountPay = (price - (price * discount) / 100).toFixed(2);
-                // Map category to abbreviations
-                const getCategoryAbbreviation = (category) => {
-                  switch (category) {
-                    case "Vegetables":
-                      return "VEG";
-                    case "Stationaries":
-                      return "STR";
-                    case "Fruits":
-                      return "FRT";
-                    default:
-                      return category; // Default to the original name if no match
-                  }
-                };
+    <Paper elevation={1} sx={{ padding: 2 }}>
+      <Toast ref={toast} />
+      <ConfirmDialog />
 
-                return (
-                  <TableRow
-                    key={rowIndex}
-                    style={{
-                      backgroundColor:
-                        rowIndex % 2 === 0 ? "#f0f0f0" : "#ffffff",
-                      padding: "2px",
-                    }}
-                  >
-                    <TableCell>{row.itemCode}</TableCell>
-                    <TableCell>{row.itemName}</TableCell>
-                    <TableCell>
-                      {getCategoryAbbreviation(row.category)}
-                    </TableCell>
-                    <TableCell>{row.quantity}</TableCell>
-                    <TableCell>{row.rate?.toFixed(2) || "-"}</TableCell>
-                    <TableCell>{price.toFixed(2) || "-"}</TableCell>
-                    <TableCell>{`${discount}%`}</TableCell>
-                    <TableCell>{amountPay}</TableCell>
-                    <TableCell>{row.location || "-"}</TableCell>
-                    <TableCell>
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "row",
-                          gap: "5px",
-                        }}
-                      ></div>
+      <div className="mb-4 text-sm text-gray-600">
+        <span className="mr-4">VEG - Vegetables</span>
+        <span className="mr-4">FRT - Fruits</span>
+        <span>STR - Stationaries</span>
+      </div>
+
+      <TableContainer>
+        <Table>
+          <TableHead>
+            <TableRow>
+              {[
+                "Item Code",
+                "Item Name",
+                "Category",
+                "Quantity",
+                "Rate",
+                "Price",
+                "Discount",
+                "Amount",
+                "Location",
+                "Actions",
+              ].map((header) => (
+                <TableCell key={header} style={{ fontWeight: "bold" }}>
+                  {header}
+                </TableCell>
+              ))}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {currentRows.map((row) => {
+              const discount = getDiscount(row.category);
+              const price = row.quantity * (row.rate || 0);
+              const amountPay = (price - (price * discount) / 100).toFixed(2);
+
+              return (
+                <TableRow
+                  key={row._id}
+                  style={{
+                    backgroundColor: row._id % 2 === 0 ? "#f0f0f0" : "#ffffff",
+                    padding: "2px",
+                  }}
+                >
+                  <TableCell>{row.itemCode}</TableCell>
+                  <TableCell>{row.itemName}</TableCell>
+                  <TableCell>{getCategoryAbbreviation(row.category)}</TableCell>
+                  <TableCell>{row.quantity}</TableCell>
+                  <TableCell>{row.rate?.toFixed(2) || "-"}</TableCell>
+                  <TableCell>{price.toFixed(2) || "-"}</TableCell>
+                  <TableCell>{`${discount}%`}</TableCell>
+                  <TableCell>{amountPay}</TableCell>
+                  <TableCell>{row.location || "-"}</TableCell>
+                  <TableCell>
+                    <div className="flex flex-row gap-2">
                       <IconButton
-                        onClick={findDocumentAndDelete}
+                        onClick={() => confirmDelete(row._id)}
                         aria-label="delete"
+                        className="hover:bg-red-100"
                       >
                         <MdDeleteOutline color="red" />
                       </IconButton>
                       <IconButton
-                        onClick={findDocumentAndUpdate}
+                        onClick={() => findDocumentAndUpdate(row._id)}
                         aria-label="edit"
+                        className="hover:bg-green-100"
                       >
                         <CiEdit color="green" />
                       </IconButton>
                       <IconButton
-                        onClick={findDocumentAndUpdate}
+                        onClick={() => viewDocument(row._id)}
                         aria-label="view"
+                        className="hover:bg-gray-100"
                       >
                         <RxEyeOpen color="black" />
                       </IconButton>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        {/* Pagination */}
-        <Pagination
-          count={totalPages}
-          page={currentPage}
-          onChange={(event, page) => setCurrentPage(page)}
-          sx={{ marginTop: 2, display: "flex", justifyContent: "center" }}
-        />
-      </Paper>
-    </>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      <Pagination
+        count={totalPages}
+        page={currentPage}
+        onChange={(event, page) => setCurrentPage(page)}
+        sx={{ marginTop: 2, display: "flex", justifyContent: "center" }}
+      />
+    </Paper>
   );
 }
 
