@@ -16,14 +16,14 @@ import {
 import { MdDeleteOutline } from "react-icons/md";
 import { CiEdit } from "react-icons/ci";
 import { RxEyeOpen } from "react-icons/rx";
-import FormDialog from "./FormDialogue.jsx"; // Import the FormDialog component
+import FormDialog from "./Childrens/FormDialogue";
 
 function Tables({ refresh }) {
   const [data, setData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 6;
   const toast = useRef(null);
-  const [selectedRow, setSelectedRow] = useState(null); // Track the row being edited
+  const [selectedRow, setSelectedRow] = useState(null);
 
   useEffect(() => {
     fetchInvoices();
@@ -65,10 +65,9 @@ function Tables({ refresh }) {
       life: 3000,
     });
   };
-
   const confirmDelete = (id) => {
     confirmDialog({
-      message: "Are you sure you want to delete this stock?",
+      message: "Are you sure you want to delete Stock?",
       header: "Delete Confirmation",
       icon: "pi pi-exclamation-triangle",
       acceptClassName: "p-button-danger",
@@ -77,34 +76,29 @@ function Tables({ refresh }) {
         showToast("info", "Cancelled", "Delete operation cancelled"),
     });
   };
-
   const handleDelete = async (id) => {
     if (!id) {
       showToast("error", "Error", "No Stock ID provided for deletion");
       return;
     }
-
     try {
       const response = await axios.delete(
         `http://localhost:3000/api/v1/invoices/delete/${id}`
       );
-
       if (response.status === 200) {
         setData((prevData) => prevData.filter((item) => item._id !== id));
         showToast("success", "Success", "Item deleted successfully!");
+      } else {
+        showToast("error", "Error", "Failed to delete item.");
       }
     } catch (error) {
       console.error("Error deleting item:", error);
-      showToast(
-        "error",
-        "Error",
-        error.response?.data?.message || "Failed to delete item."
-      );
+      showToast("error", "Error", "Failed to delete item.");
     }
   };
 
   const findDocumentAndUpdate = (row) => {
-    setSelectedRow(row); // Set the selected row to edit
+    setSelectedRow(row);
   };
 
   const viewDocument = (id) => {
@@ -124,7 +118,6 @@ function Tables({ refresh }) {
         return 0;
     }
   };
-
   const getCategoryAbbreviation = (category) => {
     switch (category) {
       case "Vegetables":
@@ -135,6 +128,20 @@ function Tables({ refresh }) {
         return "FRT";
       default:
         return category;
+    }
+  };
+
+  const handleEdit = async () => {
+    try {
+      await fetchInvoices();
+      showToast("success", "Success", "Updated successfully!");
+    } catch (error) {
+      console.error("Error handling submit:", error);
+      showToast(
+        "error",
+        "Error",
+        "Failed to update data. Please try again later."
+      );
     }
   };
 
@@ -174,7 +181,6 @@ function Tables({ refresh }) {
               const discount = getDiscount(row.category);
               const price = row.quantity * (row.rate || 0);
               const amountPay = (price - (price * discount) / 100).toFixed(2);
-
               return (
                 <TableRow
                   key={row._id}
@@ -223,20 +229,18 @@ function Tables({ refresh }) {
           </TableBody>
         </Table>
       </TableContainer>
-
       <Pagination
         count={totalPages}
         page={currentPage}
         onChange={(event, page) => setCurrentPage(page)}
         sx={{ marginTop: 2, display: "flex", justifyContent: "center" }}
       />
-
-      {/* Show the FormDialog when a row is selected for editing */}
       {selectedRow && (
         <FormDialog
           open={!!selectedRow}
           handleClose={() => setSelectedRow(null)}
           rowData={selectedRow}
+          handleSubmit={handleEdit}
         />
       )}
     </Paper>
