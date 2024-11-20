@@ -92,23 +92,23 @@ function Tables({ refresh }) {
         showToast("success", "Success", "Item deleted successfully!");
       }
     } catch (error) {
-      console.error("Error deleting invoice:", error);
+      console.error("Error deleting item:", error);
       showToast(
         "error",
         "Error",
-        error.response?.data?.message || "Failed to delete invoice."
+        error.response?.data?.message || "Failed to delete item."
       );
     }
   };
 
   const findDocumentAndUpdate = (id) => {
     confirmDialog({
-      message: "Are you sure you want to update this invoice?",
+      message: "Are you sure you want to update this Stock?",
       header: "Update Confirmation",
       icon: "pi pi-exclamation-circle",
       accept: () => {
-        console.log("Invoice updated!", id);
-        showToast("success", "Success", "Invoice updated successfully!");
+        console.log("Stock updated!", id);
+        showToast("success", "Success", "Stock updated successfully!");
       },
       reject: () =>
         showToast("info", "Cancelled", "Update operation cancelled"),
@@ -118,7 +118,7 @@ function Tables({ refresh }) {
   const viewDocument = (id) => {
     // Add your view logic here
     console.log("Viewing document:", id);
-    showToast("info", "Info", "Viewing invoice details");
+    showToast("info", "Info", "Viewing Stock details");
   };
 
   const getDiscount = (category) => {
@@ -156,13 +156,6 @@ function Tables({ refresh }) {
     <Paper elevation={1} sx={{ padding: 2 }}>
       <Toast ref={toast} />
       <ConfirmDialog />
-
-      <div className="mb-4 text-sm text-gray-600">
-        <span className="mr-4">VEG - Vegetables</span>
-        <span className="mr-4">FRT - Fruits</span>
-        <span>STR - Stationaries</span>
-      </div>
-
       <TableContainer>
         <Table>
           <TableHead>
@@ -186,7 +179,7 @@ function Tables({ refresh }) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {currentRows.map((row) => {
+            {currentRows.map((row, index) => {
               const discount = getDiscount(row.category);
               const price = row.quantity * (row.rate || 0);
               const amountPay = (price - (price * discount) / 100).toFixed(2);
@@ -195,8 +188,8 @@ function Tables({ refresh }) {
                 <TableRow
                   key={row._id}
                   style={{
-                    backgroundColor: row._id % 2 === 0 ? "#f0f0f0" : "#ffffff",
-                    padding: "2px",
+                    backgroundColor: index % 2 === 0 ? "#ffffff" : "#f0f0f0",
+                    cursor: "pointer",
                   }}
                 >
                   <TableCell>{row.itemCode}</TableCell>
