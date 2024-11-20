@@ -16,12 +16,14 @@ import {
 import { MdDeleteOutline } from "react-icons/md";
 import { CiEdit } from "react-icons/ci";
 import { RxEyeOpen } from "react-icons/rx";
+import FormDialog from "./FormDialogue.jsx"; // Import the FormDialog component
 
 function Tables({ refresh }) {
   const [data, setData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 6;
   const toast = useRef(null);
+  const [selectedRow, setSelectedRow] = useState(null); // Track the row being edited
 
   useEffect(() => {
     fetchInvoices();
@@ -66,7 +68,7 @@ function Tables({ refresh }) {
 
   const confirmDelete = (id) => {
     confirmDialog({
-      message: "Are you sure you want to delete this  stock?",
+      message: "Are you sure you want to delete this stock?",
       header: "Delete Confirmation",
       icon: "pi pi-exclamation-triangle",
       acceptClassName: "p-button-danger",
@@ -101,22 +103,11 @@ function Tables({ refresh }) {
     }
   };
 
-  const findDocumentAndUpdate = (id) => {
-    confirmDialog({
-      message: "Are you sure you want to update this Stock?",
-      header: "Update Confirmation",
-      icon: "pi pi-exclamation-circle",
-      accept: () => {
-        console.log("Stock updated!", id);
-        showToast("success", "Success", "Stock updated successfully!");
-      },
-      reject: () =>
-        showToast("info", "Cancelled", "Update operation cancelled"),
-    });
+  const findDocumentAndUpdate = (row) => {
+    setSelectedRow(row); // Set the selected row to edit
   };
 
   const viewDocument = (id) => {
-    // Add your view logic here
     console.log("Viewing document:", id);
     showToast("info", "Info", "Viewing Stock details");
   };
@@ -211,7 +202,7 @@ function Tables({ refresh }) {
                         <MdDeleteOutline color="red" />
                       </IconButton>
                       <IconButton
-                        onClick={() => findDocumentAndUpdate(row._id)}
+                        onClick={() => findDocumentAndUpdate(row)}
                         aria-label="edit"
                         className="hover:bg-green-100"
                       >
@@ -239,6 +230,15 @@ function Tables({ refresh }) {
         onChange={(event, page) => setCurrentPage(page)}
         sx={{ marginTop: 2, display: "flex", justifyContent: "center" }}
       />
+
+      {/* Show the FormDialog when a row is selected for editing */}
+      {selectedRow && (
+        <FormDialog
+          open={!!selectedRow}
+          handleClose={() => setSelectedRow(null)}
+          rowData={selectedRow}
+        />
+      )}
     </Paper>
   );
 }

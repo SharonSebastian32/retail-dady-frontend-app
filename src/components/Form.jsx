@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Toast } from "primereact/toast";
 import { ConfirmDialog } from "primereact/confirmdialog";
 import {
@@ -13,7 +13,7 @@ import {
 
 function Form({ onFormSubmit }) {
   const toast = useRef(null);
-  const itemCodeRef = useRef(null); // Add ref for itemCode input
+  const itemCodeRef = useRef(null); // Ref for itemCode input
   const [visible, setVisible] = useState(false);
   const [formData, setFormData] = useState({
     itemCode: "",
@@ -24,24 +24,20 @@ function Form({ onFormSubmit }) {
     location: "",
   });
 
+  // Handle input change
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
+  // Handle form submission to the server
   const handleFormSubmit = async () => {
     try {
       const response = await fetch(
-        // "https://retail-daddy-backend.onrender.com/api/v1/invoices/create", production api
-        "http://localhost:3000/api/v1/invoices/create", //development api
+        "http://localhost:3000/api/v1/invoices/create", // Use dev API
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formData),
         }
       );
@@ -55,6 +51,8 @@ function Form({ onFormSubmit }) {
           detail: "Stock added successfully!",
           life: 3000,
         });
+
+        // Reset form and trigger parent callback after successful submission
         setFormData({
           itemCode: "",
           itemName: "",
@@ -64,31 +62,31 @@ function Form({ onFormSubmit }) {
           location: "",
         });
         onFormSubmit();
-        itemCodeRef.current?.focus();
       } else {
-        toast.current.show({
-          severity: "error",
-          summary: "Error",
-          detail: data.message || "Something went wrong!",
-          life: 3000,
-        });
+        showToastError(data.message || "Something went wrong!");
       }
     } catch (error) {
-      toast.current.show({
-        severity: "error",
-        summary: "Error",
-        detail: "Failed to add stock. Please try again.",
-        life: 3000,
-      });
+      showToastError("Failed to add stock. Please try again.");
       console.error(error);
     }
   };
 
+  const showToastError = (message) => {
+    toast.current.show({
+      severity: "error",
+      summary: "Error",
+      detail: message,
+      life: 3000,
+    });
+  };
+
+  // Handle form submission action
   const handleSubmit = (e) => {
     e.preventDefault();
     setVisible(true);
   };
 
+  // Confirmation accept and reject actions
   const accept = () => {
     handleFormSubmit();
     setVisible(false);
@@ -103,17 +101,22 @@ function Form({ onFormSubmit }) {
     });
   };
 
+  // Focus on itemCode input field after form reset
+  useEffect(() => {
+    if (formData.itemCode === "") {
+      itemCodeRef.current?.focus(); // Focus after resetting form data
+    }
+  }, [formData.itemCode]);
+
   return (
     <Box
-      style={{
+      component="form"
+      onSubmit={handleSubmit}
+      sx={{
         marginTop: "9px",
         padding: "40px",
         boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.1)",
         gap: "28px",
-      }}
-      component="form"
-      onSubmit={handleSubmit}
-      sx={{
         display: "flex",
         flexDirection: "column",
         maxWidth: "300px",
@@ -133,13 +136,14 @@ function Form({ onFormSubmit }) {
 
       {/* Item Code */}
       <TextField
-        inputRef={itemCodeRef} // Add ref to itemCode TextField
+        inputRef={itemCodeRef} // Ref for itemCode TextField
         label="Item Code"
         name="itemCode"
         value={formData.itemCode}
         onChange={handleChange}
         placeholder="Enter Item Code"
         required
+        fullWidth
       />
 
       {/* Item Name */}
@@ -150,6 +154,7 @@ function Form({ onFormSubmit }) {
         onChange={handleChange}
         placeholder="Enter Item Name"
         required
+        fullWidth
       />
 
       {/* Category */}
@@ -157,14 +162,12 @@ function Form({ onFormSubmit }) {
         <InputLabel id="category-label">Category</InputLabel>
         <Select
           labelId="category-label"
+          label="Category"
           name="category"
           value={formData.category}
           onChange={handleChange}
           required
         >
-          <MenuItem value="">
-            <em>Select Category</em>
-          </MenuItem>
           <MenuItem value="Fruits">Fruits</MenuItem>
           <MenuItem value="Vegetables">Vegetables</MenuItem>
           <MenuItem value="Stationaries">Stationaries</MenuItem>
@@ -180,6 +183,7 @@ function Form({ onFormSubmit }) {
         onChange={handleChange}
         placeholder="Enter Quantity"
         required
+        fullWidth
       />
 
       {/* Rate */}
@@ -191,6 +195,7 @@ function Form({ onFormSubmit }) {
         onChange={handleChange}
         placeholder="Enter Rate"
         required
+        fullWidth
       />
 
       {/* Location */}
@@ -199,13 +204,11 @@ function Form({ onFormSubmit }) {
         <Select
           labelId="location-label"
           name="location"
+          label="Location"
           value={formData.location}
           onChange={handleChange}
           required
         >
-          <MenuItem value="">
-            <em>Select Location</em>
-          </MenuItem>
           <MenuItem value="Calicut">Calicut</MenuItem>
           <MenuItem value="Malappuram">Malappuram</MenuItem>
           <MenuItem value="Thrissur">Thrissur</MenuItem>
@@ -216,7 +219,7 @@ function Form({ onFormSubmit }) {
       <Button
         type="submit"
         variant="contained"
-        style={{ backgroundColor: "grey" }}
+        sx={{ backgroundColor: "grey", width: "100%" }}
       >
         Submit
       </Button>
