@@ -42,7 +42,7 @@ function Tables({ refresh }) {
   const fetchInvoices = async () => {
     try {
       const response = await fetch(
-        "https://retail-daddy-backend.onrender.com/api/v1/invoices/getall",
+        "http://localhost:3000/api/v1/invoices/getall",
         {
           method: "GET",
           headers: {
@@ -86,7 +86,7 @@ function Tables({ refresh }) {
     }
     try {
       const response = await axios.delete(
-        `https://retail-daddy-backend.onrender.com/api/v1/invoices/delete/${id}`
+        `http://localhost:3000/api/v1/invoices/delete/${id}`
       );
       if (response.status === 200) {
         setData((prevData) => prevData.filter((item) => item._id !== id));
