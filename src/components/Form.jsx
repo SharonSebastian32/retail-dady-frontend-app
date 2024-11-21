@@ -24,17 +24,15 @@ function Form({ onFormSubmit }) {
     location: "",
   });
 
-  // Handle input change
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  // Handle form submission to the server
   const handleFormSubmit = async () => {
     try {
       const response = await fetch(
-        "http://localhost:3000/api/v1/invoices/create", // Use dev API
+        "https://retail-daddy-backend.onrender.com/api/v1/invoices/create", // Use dev API
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -52,7 +50,6 @@ function Form({ onFormSubmit }) {
           life: 3000,
         });
 
-        // Reset form and trigger parent callback after successful submission
         setFormData({
           itemCode: "",
           itemName: "",

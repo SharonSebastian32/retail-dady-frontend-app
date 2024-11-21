@@ -58,7 +58,7 @@ export default function FormDialog({
 
     try {
       const response = await axios.put(
-        `http://localhost:3000/api/v1/invoices/update/${rowData._id}`,
+        `https://retail-daddy-backend.onrender.com/api/v1/invoices/update/${rowData._id}`,
         updatedData
       );
 
