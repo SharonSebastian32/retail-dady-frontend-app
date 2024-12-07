@@ -33,11 +33,7 @@ function App() {
           justifyContent: "space-between",
         }}
       >
-        {" "}
-        <div style={{ paddingRight: "25px" }}>
-          {" "}
-          <InvoiceForm onFormSubmit={triggerRefresh} />
-        </div>
+        <InvoiceForm onFormSubmit={triggerRefresh} />
         <Tables refresh={refresh} />
       </div>
     </>

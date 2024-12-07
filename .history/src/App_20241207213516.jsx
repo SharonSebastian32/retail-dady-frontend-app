@@ -30,14 +30,10 @@ function App() {
           display: "flex",
           flexDirection: "row",
           padding: "0px 25px",
-          justifyContent: "space-between",
         }}
       >
         {" "}
-        <div style={{ paddingRight: "25px" }}>
-          {" "}
-          <InvoiceForm onFormSubmit={triggerRefresh} />
-        </div>
+        <InvoiceForm onFormSubmit={triggerRefresh} style />
         <Tables refresh={refresh} />
       </div>
     </>

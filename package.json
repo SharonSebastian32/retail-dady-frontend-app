@@ -17,7 +17,7 @@
     "@mui/material": "^6.1.7",
     "@mui/styled-engine-sc": "^6.1.7",
     "axios": "^1.7.7",
-    "dotenv": "^16.4.5",
+    "dotenv": "^16.4.7",
     "formik": "^2.4.6",
     "primeicons": "^7.0.0",
     "primereact": "^10.8.4",

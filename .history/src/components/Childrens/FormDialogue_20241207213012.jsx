@@ -63,6 +63,44 @@ export default function FormDialog({
       );
 
       if (response.status === 200) {
+        if (handleSubmit) {
+          await handleSubmit(updatedData);
+        }
+
+        if (handleClose) {
+          handleClose();
+        }
+      }
+    } catch (error) {
+      console.error("Error updating invoice:", error);
+      toast.current?.show({
+        severity: "warn",
+        summary: "Warning",
+        detail:
+          error.response?.data?.message ||
+          "Error updating item. Please try again.",
+        life: 3000,
+      });
+    }
+  const handleFormSubmit = async (event) => {
+    event.preventDefault();
+
+    const updatedData = {
+      itemName,
+      itemCode,
+      quantity,
+      rate,
+      category,
+      location,
+    };
+
+    try {
+      const response = await axios.put(
+        import.meta.env.VITE_API_URL + `/api/v1/invoices/update/${rowData._id}`,
+        updatedData
+      );
+
+      if (response.status === 200) {
         showToast("success", "Success", "Item updated successfully");
         
         if (handleSubmit) {
@@ -81,6 +119,7 @@ export default function FormDialog({
         error.response?.data?.message || "Error updating item. Please try again."
       );
     }
+  };
   };
 
   const handleCancel = () => {

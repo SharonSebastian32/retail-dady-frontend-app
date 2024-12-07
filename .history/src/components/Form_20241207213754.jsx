@@ -113,7 +113,7 @@ function Form({ onFormSubmit }) {
         marginTop: "9px",
         padding: "40px",
         boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.1)",
-        gap: "28px",
+        
         display: "flex",
         flexDirection: "column",
         maxWidth: "300px",

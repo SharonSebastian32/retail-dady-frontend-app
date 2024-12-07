@@ -156,7 +156,7 @@ function Tables({ refresh }) {
   const totalPages = Math.ceil(data.length / rowsPerPage);
 
   return (
-    <Paper elevation={1} sx={{ padding: 3 }}>
+    <Paper  sx={{ padding: 2 }}>
       <Toast ref={toast} />
       <ConfirmDialog />
       <TableContainer>

@@ -11,36 +11,30 @@ function App() {
   };
 
   return (
-    <>
-      <div style={{ padding: "0px 25px" }}>
-        <h1
-          style={{
-            backgroundColor: "#f0f0f1",
-            color: "black",
-            fontFamily: "serif",
-            fontSize: "50px",
-            textAlign: "center",
-          }}
-        >
-          Retail Dady
-        </h1>
-      </div>
+    <div style={{ padding: "0px 25px" }}>
+      <h1
+        style={{
+          backgroundColor: "#f0f0f1",
+          color: "black",
+          fontFamily: "serif",
+          fontSize: "50px",
+          textAlign: "center",
+        }}
+      >
+        Retail Dady
+      </h1>
       <div
         style={{
           display: "flex",
           flexDirection: "row",
-          padding: "0px 25px",
           justifyContent: "space-between",
+          marginTop: "20px",
         }}
       >
-        {" "}
-        <div style={{ paddingRight: "25px" }}>
-          {" "}
-          <InvoiceForm onFormSubmit={triggerRefresh} />
-        </div>
+        <InvoiceForm onFormSubmit={triggerRefresh} />
         <Tables refresh={refresh} />
       </div>
-    </>
+    </div>
   );
 }
 

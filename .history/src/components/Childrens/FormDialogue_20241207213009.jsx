@@ -45,6 +45,7 @@ export default function FormDialog({
   };
 
   const handleFormSubmit = async (event) => {
+  const handleFormSubmit = async (event) => {
     event.preventDefault();
 
     const updatedData = {
@@ -63,8 +64,6 @@ export default function FormDialog({
       );
 
       if (response.status === 200) {
-        showToast("success", "Success", "Item updated successfully");
-        
         if (handleSubmit) {
           await handleSubmit(updatedData);
         }
@@ -75,11 +74,14 @@ export default function FormDialog({
       }
     } catch (error) {
       console.error("Error updating invoice:", error);
-      showToast(
-        "error", 
-        "Error",
-        error.response?.data?.message || "Error updating item. Please try again."
-      );
+      toast.current?.show({
+        severity: "warn",
+        summary: "Warning",
+        detail:
+          error.response?.data?.message ||
+          "Error updating item. Please try again.",
+        life: 3000,
+      });
     }
   };
 
